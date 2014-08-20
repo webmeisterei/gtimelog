@@ -485,17 +485,17 @@ class Reports(object):
 
                     entry = entry[:1].upper() + entry[1:]
                     if estimated_column:
-                        output.write(u"  %-46s  %-14s  %s\n" %
+                        output.write(u"  %-46s  %-14s  %s\n" % 
                                      (entry, '-',
                                      format_duration_short(duration)))
                     else:
-                        output.write(u"  %-61s  %+5s\n" %
+                        output.write(u"  %-61s  %+5s\n" % 
                                      (entry, format_duration_short(duration)))
 
                 output.write('-' * 70 + '\n')
                 output.write(u"%+70s\n" % format_duration_short(totals[cat]))
                 output.write('\n')
-        output.write("Total work done this %s: %s\n" %
+        output.write("Total work done this %s: %s\n" % 
                      (period_name, format_duration_short(total_work)))
 
         output.write('\n')
@@ -573,13 +573,13 @@ class Reports(object):
 
                 entry = entry[:1].upper() + entry[1:]
                 if estimated_column:
-                    output.write(u"%-46s  %-14s  %s\n" %
+                    output.write(u"%-46s  %-14s  %s\n" % 
                                  (entry, '-', format_duration_long(duration)))
                 else:
-                    output.write(u"%-62s  %s\n" %
+                    output.write(u"%-62s  %s\n" % 
                                  (entry, format_duration_long(duration)))
             output.write('\n')
-        output.write("Total work done this %s: %s\n" %
+        output.write("Total work done this %s: %s\n" % 
                      (period_name, format_duration_long(total_work)))
 
         if categories:
@@ -686,7 +686,7 @@ class Reports(object):
                 output.write(u"%-62s  %s\n" % (entry,
                                                format_duration_long(duration)))
             output.write('\n')
-        output.write("Time spent slacking: %s\n" %
+        output.write("Time spent slacking: %s\n" % 
                      format_duration_long(total_slacking))
 
 
