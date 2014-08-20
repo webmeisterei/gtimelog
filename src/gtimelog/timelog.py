@@ -508,7 +508,7 @@ class Reports(object):
         for time, cat in ordered_by_time:
             output.write(line_format % (cat, format_duration_short(time)))
 
-    def _report_categories(self, output, categories):
+    def _report_categories_old(self, output, categories):
         """A helper method that lists time spent per category.
 
         Use this to add a section in a report looks similar to this:
@@ -532,6 +532,59 @@ class Reports(object):
             output.write(u"%-62s  %s\n" % (
                 cat, format_duration_long(duration)))
         output.write('\n')
+
+    def _report_categories(self, output, categories):
+        """adapted version of _report_categories_old
+        that lists categories including their tasks.
+
+        a task is given like this
+
+        sysadmin-backupscript: do something (10min)
+        sysadmin-othertask: do something different (30min)
+        sysadmin-backupscript: finish documentation (40min)
+        sysadmin-othertask: finish something else (1h)
+
+        the output will look like this:
+
+        By category:
+
+        sysadmin-backupscript      0:50
+        sysadmin-othertask         1:30
+
+
+        By project:
+
+        sysadmin                   2:20
+        """
+        output.write('\n')
+        output.write("By category:\n")
+        output.write('\n')
+
+        no_cat = categories.pop(None, None)
+        items = sorted(categories.items())
+
+
+
+        if no_cat is not None:
+            items.append(('(none)', no_cat))
+
+        by_project = {}
+
+        for cat, duration in items:
+
+            proj = cat.split('-')[0]
+
+            proj_sum = by_project.get(proj, datetime.timedelta(0))
+            by_project[proj] = proj_sum + duration
+
+            output.write(u"%-62s  %s\n" % (
+                cat, format_duration_short(duration)))
+        output.write('\n')
+
+        output.write("\nBy project:\n\n")
+        for proj, sum in sorted(by_project.iteritems()):
+            output.write("%-62s %s\n" % (proj, format_duration_short(sum)))
+
 
     def _plain_report(self, output, email, who, subject, period_name,
                       estimated_column=False):
