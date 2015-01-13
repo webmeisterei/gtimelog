@@ -672,7 +672,7 @@ class MainWindow:
         else:
             report = reports.weekly_report_plain
         self.mail(report)
-
+            
     def on_previous_week_report_activate(self, widget):
         """File -> Weekly Report for a Previous Week"""
         day = self.choose_date()
@@ -704,6 +704,14 @@ class MainWindow:
                 report = reports.monthly_report_plain
             self.mail(report)
 
+    def on_previous_month_custom_report_activate(self, widget):
+        """File -> Custom Monthly Report for a Previous Month"""
+        day = self.choose_date()
+        if day:
+            reports = Reports(self.monthly_window(day=day))
+            report = reports.monthly_custom_report_plain
+            self.mail(report)
+            
     def on_last_month_report_activate(self, widget):
         """File -> Monthly Report for Last Month"""
         day = self.timelog.day - datetime.timedelta(self.timelog.day.day)

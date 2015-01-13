@@ -585,7 +585,50 @@ class Reports(object):
         for proj, sum in sorted(by_project.iteritems()):
             output.write("%-62s %s\n" % (proj, format_duration_short(sum)))
 
+    def _custom_plain_report(self, output, email, who, subject, period_name,
+                      estimated_column=False):
+        """Write a report that lists the total work done for each day of the month
+        
+        2014-03-01:   0:40
+        2014-03-02:   0:00
+        2014-03-03:   1:46
+        ...
+        2014-03-31:   8:01
+        
+        
+        Time spent slacking: 50 hours 42 min
+        Total work done this month: 141 hours 44 min
+        """
+        
+        window = self.window
 
+        output.write("To: %(email)s\n" % {'email': email})
+        output.write('Subject: %s\n' % subject)
+        output.write('\n')
+        
+        items = list(window.all_entries())
+        if not items:
+            output.write("No work done this %s.\n" % period_name)
+            return
+        
+        total_work, total_slacking = window.totals()
+        
+        first_day = self.window.min_timestamp
+        last_day = self.window.max_timestamp
+        
+        current_day = first_day
+        
+        while current_day < last_day:
+            next_day =current_day + datetime.timedelta(1)
+            tmp_window = TimeWindow(self.window.filename, current_day, next_day, self.window.virtual_midnight)
+            daily_sum = tmp_window.totals()[0]
+            output.write("%s: %+6s\n" % (current_day.strftime('%Y-%m-%d'), format_duration_short(daily_sum)))
+            current_day = next_day
+        
+        output.write("\n\nTotal work done this %s: %s\n" % 
+                     (period_name, format_duration_long(total_work)))
+        
+        
     def _plain_report(self, output, email, who, subject, period_name,
                       estimated_column=False):
         """Format a report that does not categorize entries.
@@ -672,6 +715,13 @@ class Reports(object):
                                   period_name='month',
                                   estimated_column=estimated_column)
 
+    def monthly_custom_report_plain(self, output, email, who, estimated_column=False):
+        """Format a monthly report ."""
+        month = self.window.min_timestamp.strftime('%Y/%m')
+        subject = u'Daily sums for %s (%s)' % (who, month)
+        return self._custom_plain_report(output, email, who, subject,
+                                  period_name='month')
+        
     def custom_range_report_categorized(self, output, email, who,
                                         estimated_column=False):
         """Format a custom range report with entries displayed  under categories."""
