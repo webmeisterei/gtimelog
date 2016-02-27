@@ -588,11 +588,15 @@ class Reports(object):
     def _custom_plain_report(self, output, email, who, subject, period_name,
                       estimated_column=False):
         """Write a report that lists the total work done for each day of the month
+        grouped by calendar week
 
+        KW 10
         2014-03-01:   0:40
         2014-03-02:   0:00
         2014-03-03:   1:46
         ...
+
+        KW 14
         2014-03-31:   8:01
 
 
@@ -619,6 +623,9 @@ class Reports(object):
         current_day = first_day
 
         while current_day < last_day:
+            if current_day.weekday() == 0:
+                # monday, print nr of this week in the year
+                output.write("\nKW %d\n" % (current_day.isocalendar()[1]))
             next_day = current_day + datetime.timedelta(1)
             tmp_window = TimeWindow(self.window.filename, current_day, next_day, self.window.virtual_midnight)
             daily_sum = tmp_window.totals()[0]
