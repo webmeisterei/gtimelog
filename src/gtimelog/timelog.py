@@ -593,12 +593,16 @@ class Reports(object):
         KW 10
         2014-03-01:   0:40
         2014-03-02:   0:00
-        2014-03-03:   1:46
+        2014-03-03:   1:50
+        Week sum: 2.50 hrs (2:30)
+
+        KW 11
+        2014-03-04:   1:46
         ...
 
         KW 14
         2014-03-31:   8:01
-
+        Week sum: 8.02 hrs (8:01)
 
         Time spent slacking: 50 hours 42 min
         Total work done this month: 141 hours 44 min
@@ -616,20 +620,33 @@ class Reports(object):
             return
 
         total_work, total_slacking = window.totals()
-
         first_day = self.window.min_timestamp
         last_day = self.window.max_timestamp
-
         current_day = first_day
+        weekly_sum = datetime.timedelta(0)
 
         while current_day < last_day:
             if current_day.weekday() == 0:
-                # monday, print nr of this week in the year
+                # monday, start header for this week in the year
                 output.write("\nKW %d\n" % (current_day.isocalendar()[1]))
+
             next_day = current_day + datetime.timedelta(1)
-            tmp_window = TimeWindow(self.window.filename, current_day, next_day, self.window.virtual_midnight)
+            tmp_window = TimeWindow(self.window.filename, current_day,
+                                    next_day, self.window.virtual_midnight)
             daily_sum = tmp_window.totals()[0]
-            output.write("%s: %+6s\n" % (current_day.strftime('%Y-%m-%d'), format_duration_short(daily_sum)))
+            weekly_sum += daily_sum
+            output.write("%s: %+6s\n" % (current_day.strftime('%Y-%m-%d'),
+                                         format_duration_short(daily_sum)))
+
+            if (weekly_sum.total_seconds() > 0 and
+                (current_day.weekday() == 6 or
+                 (last_day - next_day).days == 0)):
+                # sunday or last day of month print sum of this week
+                output.write("Week sum: %0.2f hrs (%s)\n" % (
+                    (weekly_sum.total_seconds() / 60 / 60),
+                    format_duration_short(weekly_sum)))
+                weekly_sum = datetime.timedelta(0)
+
             current_day = next_day
 
         output.write("\n\nTotal work done this %s: %s\n" %
